@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "707434553696",
+    "project_id": "maavils-d222f",
+    "storage_bucket": "maavils-d222f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:707434553696:android:a82d71484b066597cffe05",
+        "android_client_info": {
+          "package_name": "com.example.maavils_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDG8A0RSwcuSvEIGAKE1EY_eU8gteTJDTI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
