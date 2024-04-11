@@ -2,7 +2,11 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:maavils_app/firebase_options.dart';
-import 'package:maavils_app/login/phone.dart';
+import 'package:maavils_app/models/user.dart';
+import 'package:maavils_app/profile/profileState.dart';
+import 'package:maavils_app/services/auth.dart';
+import 'package:maavils_app/wrapper.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,8 +29,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: MyPhone(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<UserProfileProvider>(
+            create: (_) => UserProfileProvider()),
+        // Add other providers if needed
+      ],
+      child: StreamProvider<UserObj?>.value(
+        value: AuthService().user,
+        initialData: null,
+        child: const MaterialApp(
+          home: Wrapper(),
+        ),
+      ),
     );
   }
 }

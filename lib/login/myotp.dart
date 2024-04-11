@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:maavils_app/home/home.dart';
 import 'package:maavils_app/login/phone.dart';
+import 'package:maavils_app/models/user.dart';
+import 'package:maavils_app/services/auth.dart';
 import 'package:pinput/pinput.dart';
 
 class MyOtp extends StatefulWidget {
@@ -11,28 +12,27 @@ class MyOtp extends StatefulWidget {
   State<MyOtp> createState() => _MyOtpState();
 }
 
+final AuthService _auth = AuthService();
+
 class _MyOtpState extends State<MyOtp> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  // final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _otpController = TextEditingController();
-  bool _isWrongOTP = false;
+  bool _isSendingOTP = false;
 
-  Future<void> _verifyOTP(String otp) async {
-    try {
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: MyPhone.verificationId,
-        smsCode: otp,
-      );
-
-      await _auth.signInWithCredential(credential);
+  void _verifyOTP(String otp) async {
+    setState(() {
+      _isSendingOTP = true;
+    });
+    UserObj? user = await _auth.verifyOTP(MyPhone.verificationId, otp);
+    setState(() {
+      _isSendingOTP = false;
+    });
+    if (user != null) {
+      // OTP verified, navigate to home screen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const MyHome()),
       );
-    } catch (e) {
-      print(e);
-      setState(() {
-        _isWrongOTP = true;
-      });
     }
   }
 
@@ -74,45 +74,46 @@ class _MyOtpState extends State<MyOtp> {
               defaultPinTheme: defaultPinTheme,
               showCursor: true,
             ),
-            const SizedBox(height: 10),
-            if (_isWrongOTP) // Show "Wrong OTP" text if OTP is incorrect
-              const Text(
-                'Wrong OTP',
-                style: TextStyle(color: Colors.red),
-              ),
-            const SizedBox(height: 10),
-            SizedBox(
-              height: 45,
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  _verifyOTP(_otpController.text);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+            const SizedBox(height: 20),
+            _isSendingOTP
+                ? const CircularProgressIndicator(
+                    color: Colors.black,
+                  )
+                : SizedBox(
+                    height: 45,
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _verifyOTP(_otpController.text);
+                        // Navigator.pushReplacement(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //         builder: (context) => const MyHome()));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      child: const Text(
+                        'Verify',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
                   ),
-                ),
-                child: const Text(
-                  'Verify',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
             TextButton(
-              onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const MyPhone()),
-                  (route) => false,
-                );
-              },
-              child: const Text(
-                'Edit Phone Number ?',
-                style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
-              ),
-            )
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MyPhone()),
+                    (route) => false,
+                  );
+                },
+                child: const Text(
+                  "Edit phone number?",
+                  style: TextStyle(color: Colors.black, fontSize: 15),
+                ))
           ],
         ),
       ),
